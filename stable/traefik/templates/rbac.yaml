@@ -38,6 +38,38 @@ rules:
       - ingresses/status
     verbs:
       - update
+  - apiGroups:
+      - traefik.containo.us
+    resources:
+      - middlewares
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - traefik.containo.us
+    resources:
+      - ingressroutes
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - traefik.containo.us
+    resources:
+      - ingressroutetcps
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - traefik.containo.us
+    resources:
+      - tlsoptions
+    verbs:
+      - get
+      - list
+      - watch
 ---
 kind: ClusterRoleBinding
 {{- if semverCompare "^1.8-0" .Capabilities.KubeVersion.GitVersion }}

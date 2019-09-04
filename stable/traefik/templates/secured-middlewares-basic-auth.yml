@@ -1,0 +1,17 @@
+{{- if .Values.ssl.auth }}
+{{- if .Values.ssl.auth.basic }}
+# Enable basic auth
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ template "traefik.fullname" . }}-basic-auth
+  labels:
+    app: {{ template "traefik.name" . }}
+    chart: {{ template "traefik.chart" . }}
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+spec:
+  basicAuth:
+    users: [{{ range $key, $value := .Values.ssl.auth.basic }}"{{ $key }}:{{ $value }}",{{ end }}]
+{{- end }}
+{{- end }}

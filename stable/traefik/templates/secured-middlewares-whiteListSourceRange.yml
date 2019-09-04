@@ -1,0 +1,15 @@
+{{- if .Values.whiteListSourceRange }}
+# Enable basic auth
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ template "traefik.fullname" . }}-whiteListSourceRange
+  labels:
+    app: {{ template "traefik.name" . }}
+    chart: {{ template "traefik.chart" . }}
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+spec:
+  ipWhiteList:
+      {{ template "traefik.whiteListSourceRange" . }}
+{{- end }}

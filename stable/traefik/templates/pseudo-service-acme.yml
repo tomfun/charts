@@ -1,0 +1,25 @@
+{{- if .Values.acme.enabled }}
+{{- if .Values.acme.domains.enabled }}
+{{- if .Values.acme.domains.domainsList }}
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ template "traefik.fullname" . }}-pseudo-service-acme
+  labels:
+    app: {{ template "traefik.name" . }}
+    chart: {{ template "traefik.chart" . }}
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+spec:
+  entryPoints:
+    - http
+    - https
+  routes:
+#    - match: Host(`*.example.com`)
+#      kind: Rule
+    {{ template "traefik.acme.domains" . }}
+  tls:
+    certResolver: defaultResolver
+{{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,18 @@
+{{- if .Values.dashboard.enabled }}
+{{- if .Values.dashboard.auth }}
+{{- if .Values.dashboard.auth.basic }}
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ template "traefik.fullname" . }}-dashboard-auth
+  labels:
+    app: {{ template "traefik.name" . }}
+    chart: {{ template "traefik.chart" . }}
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+spec:
+  basicAuth:
+    users: [{{ range $key, $value := .Values.dashboard.auth.basic }}"{{ $key }}:{{ $value }}",{{ end }}]
+{{- end }}
+{{- end }}
+{{- end }}

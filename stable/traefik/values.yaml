@@ -1,6 +1,6 @@
 ## Default values for Traefik
 image: traefik
-imageTag: 1.7.14
+imageTag: "2.0"
 
 ## Optionally specify an array of imagePullSecrets.
 ## Secrets must be manually created in the namespace.
@@ -143,7 +143,7 @@ ssl:
 
   # mtls:
   #   enabled: true
-  #   optional: false
+  #   clientAuthType: RequireAndVerifyClientCert
   #   clientCaCerts: []
   #   # When mTLS is enabled, the set of CA certificates used to validate client TLS certificates.
   #   # https://docs.traefik.io/configuration/entrypoints/#tls-mutual-authentication
@@ -206,9 +206,7 @@ acme:
   keyType: RSA4096
   enabled: false
   email: admin@example.com
-  onHostRule: true
   staging: true
-  logging: false
   # Configure a Let's Encrypt certificate to be managed by default.
   # This is the only way to request wildcard certificates (works only with dns challenge).
   domains:
@@ -485,11 +483,6 @@ tracing:
 #   forwarding:
 #     dialTimeout: 30s
 #     responseHeaderTimeout: 0s
-
-# forwardAuth:
-#   entryPoints: ["http", "https"]
-#   address: https://authserver.com/auth
-#   trustForwardHeader: true
 
 # Any extra volumes to define for the pod
 extraVolumes: []

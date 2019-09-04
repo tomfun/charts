@@ -1,0 +1,32 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ template "traefik.fullname" . }}-global
+  labels:
+    app: {{ template "traefik.name" . }}
+    chart: {{ template "traefik.chart" . }}
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+spec:
+  chain:
+    {{- if (.Values.ssl.enforced) or (.Values.whiteListSourceRange) or ((.Values.ssl.auth) and (.Values.ssl.auth.basic)) or ((.Values.gzip) and (.Values.gzip.enabled)) }}
+    middlewares:
+{{- if .Values.ssl.enforced }}
+      - {{ template "traefik.fullname" . }}-https-redirect
+{{- end }}
+{{- if .Values.whiteListSourceRange }}
+      - {{ template "traefik.fullname" . }}-whiteListSourceRange
+{{- end }}
+{{- if .Values.ssl.auth }}
+{{- if .Values.ssl.auth.basic }}
+      - {{ template "traefik.fullname" . }}-basic-auth
+{{- end }}
+{{- end }}
+{{- if (.Values.gzip) and (.Values.gzip.enabled) }}
+      - {{ template "traefik.fullname" . }}-compress
+{{- end }}
+
+{{- else }}
+    middlewares: []
+{{- end }}

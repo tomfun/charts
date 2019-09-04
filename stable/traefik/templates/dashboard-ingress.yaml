@@ -1,6 +1,6 @@
 {{- if .Values.dashboard.enabled }}
-apiVersion: extensions/v1beta1
-kind: Ingress
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
 metadata:
   name: {{ template "traefik.fullname" . }}-dashboard
   labels:
@@ -20,15 +20,25 @@ metadata:
   {{- end }}
   {{- end }}
 spec:
-  rules:
-  - host: {{ .Values.dashboard.domain }}
-    http:
-      paths:
-      - backend:
-          serviceName: {{ template "traefik.fullname" . }}-dashboard
-          servicePort: dashboard-http
+  entryPoints:
+    - https
+  routes:
+    - match: Host(`{{ .Values.dashboard.domain }}`)
+      kind: Rule
+      priority: 1
+      services:
+        - name: {{ template "traefik.fullname" . }}-dashboard
+          port: 80
+  {{- if .Values.dashboard.auth }}
+  {{- if .Values.dashboard.auth.basic }}
+      middlewares:
+        - name: {{ template "traefik.fullname" . }}-dashboard-auth
+  {{- end }}
+  {{- end }}
   {{- if .Values.dashboard.ingress.tls }}
   tls:
-{{ toYaml .Values.dashboard.ingress.tls | indent 4 }}
+  {{ toYaml .Values.dashboard.ingress.tls | indent 4 }}
+  {{- else }}
+  tls: {}
   {{- end -}}
 {{- end }}

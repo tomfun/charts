@@ -5,8 +5,8 @@ microservices with ease.
 
 ## Introduction
 
-This chart bootstraps Traefik as a Kubernetes ingress controller with optional support for SSL and
-Let's Encrypt.
+This chart bootstraps Traefik 2.0 as a Kubernetes ingress controller with custom resource definition
+ with optional support for SSL and Let's Encrypt.
 
 __NOTE:__ Operators will typically wish to install this component into the `kube-system` namespace
 where that namespace's default service account will ensure adequate privileges to watch `Ingress`
@@ -20,25 +20,6 @@ resources _cluster-wide_.
 external load balancer (e.g. AWS or GKE)
 - You control DNS for the domain(s) you intend to route through Traefik
 - __Suggested:__ PV provisioner support in the underlying infrastructure
-
-## A Quick Note on Versioning
-
-Up until version 1.2.1-b of this chart, the semantic version of the chart was
-kept in-sync with the semantic version of the (default) version of Traefik
-installed by the chart. A dash and a letter were appended to Traefik's
-semantic version to indicate incrementally improved versions of the chart
-itself. For example, chart version 1.2.1-a and 1.2.1-b _both_ provide Traefik
-1.2.1, but 1.2.1-b is a chart that is incrementally improved in some way from
-its immediate predecessor-- 1.2.1-a.
-
-This convention, in practice, suffered from a few problems, not the least of
-which was that it defied what was permitted by
-[semver 2.0.0](http://semver.org/spec/v2.0.0.html). This, in turn, lead to some
-difficulty in Helm understanding the versions of this chart.
-
-Beginning with version 1.3.0 of this chart, the version references _only_
-the revision of the chart itself. The `appVersion` field in `chart.yaml` now
-conveys information regarding the revision of Traefik that the chart provides.
 
 ## Installing the Chart
 
@@ -87,7 +68,7 @@ The following table lists the configurable parameters of the Traefik chart and t
 | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
 | `fullnameOverride`                     | Override the full resource names                                                                                             | `{release-name}-traefik` (or traefik if release-name is traefik) |
 | `image`                                | Traefik image name                                                                                                           | `traefik`                                         |
-| `imageTag`                             | The version of the official Traefik image to use                                                                             | `1.7.14`                                           |
+| `imageTag`                             | The version of the official Traefik image to use                                                                             | `2.0`                                           |
 | `imagePullSecrets`                     | A list of image pull secrets (if needed)                                                                                     | None                                           |
 | `serviceType`                          | A valid Kubernetes service type                                                                                              | `LoadBalancer`                                    |
 | `loadBalancerIP`                       | An available static IP you have reserved on your cloud platform                                                              | None                                              |
@@ -145,9 +126,7 @@ The following table lists the configurable parameters of the Traefik chart and t
 | `acme.dnsProvider.existingSecretName`  | Don't create a secret for DNS provider configuration environment variables, but use the specified one instead. Secret should contain the required environment variables. Useful to avoid storing secrets in helm | `""`                   |
 | `acme.dnsProvider.$name`               | The configuration environment variables (encoded as a secret) needed for the DNS provider to do DNS challenge. Example configuration: [AWS Route 53](#example-aws-route-53), [Google Cloud DNS](#example-gcloud). | `{}` |
 | `acme.email`                           | Email address to be used in certificates obtained from Let's Encrypt                                                         | `admin@example.com`                               |
-| `acme.onHostRule`                      | Whether to generate a certificate for each frontend with Host rule                                                           | `true`                                            |
 | `acme.staging`                         | Whether to get certs from Let's Encrypt's staging environment                                                                | `true`                                            |
-| `acme.logging`                         | Display debug log messages from the ACME client library                                                                      | `false`                                           |
 | `acme.domains.enabled`                 | Enable certificate creation by default for specific domain                                                                   | `false`                                           |
 | `acme.domains.domainsList`             | List of domains & (optional) subject names                                                                                   | `[]`                                              |
 | `acme.domains.domainsList.main`        | Main domain name of the generated certificate                                                                                | *.example.com                                     |
@@ -185,7 +164,6 @@ The following table lists the configurable parameters of the Traefik chart and t
 | `service.labels`                       | Additional labels for the Traefik Service definition, specified as a map.                                                    | None                                              |
 | `service.nodePorts.http`               | Desired nodePort for service of type NodePort used for http requests                                                         | blank ('') - will assign a dynamic node port      |
 | `service.nodePorts.https`              | Desired nodePort for service of type NodePort used for https requests                                                        | blank ('') - will assign a dynamic node port      |
-| `gzip.enabled`                         | Whether to use gzip compression                                                                                              | `true`                                            |
 | `kubernetes.namespaces`                | List of Kubernetes namespaces to watch                                                                                       | All namespaces                                    |
 | `kubernetes.labelSelector`             | Valid Kubernetes ingress label selector to watch (e.g `realm=public`).                                                       | No label filter                                   |
 | `kubernetes.ingressClass`              | Value of `kubernetes.io/ingress.class` annotation to watch - must start with `traefik` if set                                | None                                              |
@@ -244,9 +222,6 @@ The following table lists the configurable parameters of the Traefik chart and t
 | `secretFiles`                          | Secret files to make available in the deployment. key=filename, value=file contents                                          | `{}`                                              |
 | `testFramework.image`                  | `test-framework` image repository.                                                                                           | `dduportal/bats`                                  |
 | `testFramework.tag`                    | `test-framework` image tag.                                                                                                  | `0.4.0`                                           |
-| `forwardAuth.entryPoints`              | Enable forward authentication for these entryPoints: "http", "https", "httpn"                                                |                                                   |
-| `forwardAuth.address`                  | URL for forward authentication                                                                                               |                                                   |
-| `forwardAuth.trustForwardHeader`       | Trust X-Forwarded-* headers                                                                                                  |                                                   |
 | `extraVolumeMounts`      | Any extra volumes mounts to define for the Traefik container                                                                                                                                                                                                               | `[]`                                                                                                                      |
 | `extraVolumes`           | Any extra volumes to define for the pod                                                                                                                                                                                                                                     | `[]`                                                                                                                      |
 
@@ -264,6 +239,45 @@ installing the chart. For example:
 
 ```bash
 $ helm install --name my-release --namespace kube-system --values values.yaml stable/traefik
+```
+### Additional options
+
+Traefik **2** has another approach (*do not work by default*) for configuration most of sophisticated options like:
+ - whiteListSourceRange
+ - ssl.enforced
+ - ssl.permanentRedirect
+ - gzip.enabled
+ - ssl.mtls
+ - ...
+
+For simplicity there are generated middlewares, but v2+ has no global rules, *you must manually specify* the `global`
+middleware to every ingress route, example:
+
+```yaml
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: test
+  namespace: default
+spec:
+  entryPoints:
+    - http
+    - https
+  routes:
+    - match: Host(`mydomain`)
+      kind: Rule
+      services:
+        - name: whoami
+          port: 80
+      # Like that:
+      middlewares:
+        - name: my-realease-traefik-global
+  tls:
+    # generated or manually added certs
+    secretName: my-realease-traefik-default-cert
+    options:
+    # tls configured options
+      name: my-realease-traefik-global
 ```
 
 ### Clustering / High Availability

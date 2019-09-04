@@ -61,7 +61,7 @@ Create the block for the forwardedHeaders's Trusted IPs.
 Create the block for whiteListSourceRange.
 */}}
 {{- define "traefik.whiteListSourceRange" -}}
-       whiteListSourceRange = [
+       sourceRange = [
 	   {{- range $idx, $ips := .Values.whiteListSourceRange }}
 	     {{- if $idx }}, {{ end }}
 	     {{- $ips | quote }}
@@ -75,16 +75,15 @@ Create the block for acme.domains.
 {{- define "traefik.acme.domains" -}}
 {{- range $idx, $value := .Values.acme.domains.domainsList }}
     {{- if $value.main }}
-    [[acme.domains]]
-       main = {{- range $mainIdx, $mainValue := $value }} {{ $mainValue | quote }}{{- end -}}
+    - match: Host(`{{- range $mainIdx, $mainValue := $value }}{{ $mainValue }}{{- end -}}`)
+      kind: Rule
     {{- end -}}
 {{- if $value.sans }}
-       sans = [
   {{- range $sansIdx, $domains := $value.sans }}
 			 {{- if $sansIdx }}, {{ end }}
-	     {{- $domains | quote }}
+    - match: Host(`{{- $domains }}`)
+      kind: Rule
   {{- end -}}
-	     ]
 	{{- end -}}
 {{- end -}}
 {{- end -}}
@@ -105,7 +104,7 @@ Create the block for acme.resolvers.
 Create custom cipherSuites block
 */}}
 {{- define "traefik.ssl.cipherSuites" -}}
-          cipherSuites = [
+          cipherSuites: [
           {{- range $idx, $cipher := .Values.ssl.cipherSuites }}
             {{- if $idx }},{{ end }}
             {{ $cipher | quote }}
@@ -121,18 +120,6 @@ Create the block for RootCAs.
 	   {{- range $idx, $ca := .Values.rootCAs }}
 	     {{- if $idx }}, {{ end }}
 	     {{- $ca | quote }}
-	   {{- end -}}
-         ]
-{{- end -}}
-
-{{/*
-Create the block for mTLS ClientCAs.
-*/}}
-{{- define "traefik.ssl.mtls.clientCAs" -}}
-         files = [
-	   {{- range $idx, $_ := .Values.ssl.mtls.clientCaCerts }}
-	     {{- if $idx }}, {{ end }}
-	     {{- printf "/mtls/clientCaCert-%d.crt" $idx | quote }}
 	   {{- end -}}
          ]
 {{- end -}}

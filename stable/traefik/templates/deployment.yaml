@@ -84,7 +84,7 @@ spec:
         readinessProbe:
           httpGet:
             path: /ping
-            port: {{ template "traefik.containerPort.http" . }}
+            port: dash
           failureThreshold: 1
           initialDelaySeconds: 10
           periodSeconds: 10
@@ -93,7 +93,7 @@ spec:
         livenessProbe:
           httpGet:
             path: /ping
-            port: {{ template "traefik.containerPort.http" . }}
+            port: dash
           failureThreshold: 3
           initialDelaySeconds: 10
           periodSeconds: 10
@@ -127,12 +127,6 @@ spec:
         - mountPath: /ssl
           name: ssl
         {{- end }}
-        {{- if .Values.ssl.mtls }}
-        {{- if .Values.ssl.mtls.enabled }}
-        - mountPath: /mtls
-          name: mtls
-        {{- end }}
-        {{- end }}
         {{- end }}
         {{- if .Values.acme.enabled }}
         - mountPath: /acme
@@ -162,14 +156,12 @@ spec:
           hostPort: {{ default 443 .Values.deployment.hostPort.httpsPort }}
           {{- end }}
           protocol: TCP
-        {{- if or .Values.dashboard.enabled .Values.metrics.prometheus.enabled }}
         - name: dash
           containerPort: 8080
           {{- if .Values.deployment.hostPort.dashboardEnabled }}
           hostPort: {{ default 8080 .Values.deployment.hostPort.dashboardPort }}
           {{- end }}
           protocol: TCP
-        {{- end }}
         args:
         - --configfile=/config/traefik.toml
         {{- range .Values.startupArguments }}
@@ -186,13 +178,6 @@ spec:
       - name: ssl
         secret:
           secretName: {{ template "traefik.fullname" . }}-default-cert
-      {{- end }}
-      {{- if .Values.ssl.mtls }}
-      {{- if .Values.ssl.mtls.enabled }}
-      - name: mtls
-        configMap:
-          name: {{ template "traefik.fullname" . }}-client-ca-certs
-      {{- end }}
       {{- end }}
       {{- end }}
       {{- if .Values.acme.enabled }}

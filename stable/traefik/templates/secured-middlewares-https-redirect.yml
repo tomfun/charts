@@ -1,0 +1,18 @@
+{{- if .Values.ssl.enforced }}
+# Enable basic auth
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ template "traefik.fullname" . }}-https-redirect
+  labels:
+    app: {{ template "traefik.name" . }}
+    chart: {{ template "traefik.chart" . }}
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+spec:
+  redirectScheme:
+    scheme: https
+    {{- if .Values.ssl.permanentRedirect }}
+    permanent: true
+    {{- end }}
+{{- end }}

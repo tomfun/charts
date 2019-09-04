@@ -1,0 +1,14 @@
+{{- if (.Values.gzip) and (.Values.gzip.enabled) }}
+# Enable gzip compression
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ template "traefik.fullname" . }}-compress
+  labels:
+    app: {{ template "traefik.name" . }}
+    chart: {{ template "traefik.chart" . }}
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+spec:
+  compress: {}
+{{- end }}
