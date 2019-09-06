@@ -21,6 +21,7 @@ metadata:
   {{- end }}
 spec:
   entryPoints:
+    - http
     - https
   routes:
     - match: Host(`{{ .Values.dashboard.domain }}`)
@@ -29,18 +30,25 @@ spec:
       services:
         - name: {{ template "traefik.fullname" . }}-dashboard
           port: 80
-  {{- if .Values.dashboard.auth }}
-  {{- if .Values.dashboard.auth.basic }}
       middlewares:
+{{ if .Values.dashboard.ingress.middlewares -}}
+        {{- toYaml .Values.dashboard.ingress.middlewares | indent 8 }}
+{{- else }}
+        - name: {{ template "traefik.fullname" . }}-global
+{{- end }}
+      {{- if .Values.dashboard.auth }}
+      {{- if .Values.dashboard.auth.basic }}
         - name: {{ template "traefik.fullname" . }}-dashboard-auth
-  {{- end }}
-  {{- end }}
+      {{- end }}
+      {{- end }}
   {{- if .Values.dashboard.ingress.tls }}
-  tls:
-  {{ toYaml .Values.dashboard.ingress.tls | indent 4 }}
+  tls:{{ "\n" }}
+  {{- toYaml .Values.dashboard.ingress.tls | indent 4 }}
   {{- else }}
+  {{- if .Values.ssl.enabled }}
   tls:
     options:
       name: {{ template "traefik.fullname" . }}-global
+  {{- end }}
   {{- end -}}
 {{- end }}
