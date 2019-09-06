@@ -73,19 +73,16 @@ Create the block for whiteListSourceRange.
 Create the block for acme.domains.
 */}}
 {{- define "traefik.acme.domains" -}}
+{{ $fullName := include "traefik.fullname" . }}
 {{- range $idx, $value := .Values.acme.domains.domainsList }}
-    {{- if $value.main }}
-    - match: Host(`{{- range $mainIdx, $mainValue := $value }}{{ $mainValue }}{{- end -}}`)
+    - match: Host(`{{ $value.main }}`){{- if $value.sans -}}
+          {{- range $sansIdx, $domains := $value.sans }} || Host(`{{- $domains }}`) {{- end -}}
+        {{- end }}
       kind: Rule
-    {{- end -}}
-{{- if $value.sans }}
-  {{- range $sansIdx, $domains := $value.sans }}
-			 {{- if $sansIdx }}, {{ end }}
-    - match: Host(`{{- $domains }}`)
-      kind: Rule
-  {{- end -}}
-	{{- end -}}
-{{- end -}}
+      services:
+        - name: {{ $fullName }}-null-service
+          port: 80
+{{- end }}
 {{- end -}}
 
 {{/*

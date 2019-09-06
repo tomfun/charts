@@ -215,10 +215,10 @@ acme:
     # for wildcard certificates see https://docs.traefik.io/configuration/acme/#wildcard-domains
     domainsList:
       # - main: "*.example.com"
-      # - sans:
+      #   sans:
       #   - "example.com"
       # - main: "*.example2.com"
-      # - sans:
+      #   sans:
       #   - "test1.example2.com"
       #   - "test2.example2.com"
   ## ACME challenge type: "tls-sni-01", "tls-alpn-01", "http-01" or "dns-01"

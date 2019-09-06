@@ -1,0 +1,46 @@
+{{- if semverCompare "^1.9-0" .Capabilities.KubeVersion.GitVersion }}
+apiVersion: apps/v1
+  {{- else }}
+apiVersion: apps/v1beta1
+  {{- end }}
+kind: Deployment
+metadata:
+  name: {{ template "traefik.fullname" . }}-null-service
+  labels:
+    app: {{ template "traefik.name" . }}
+    chart: {{ template "traefik.chart" . }}
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ template "traefik.fullname" . }}-null-service
+      chart: {{ template "traefik.chart" . }}
+      release: {{ .Release.Name | quote }}
+      heritage: {{ .Release.Service | quote }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "traefik.fullname" . }}-null-service
+        chart: {{ template "traefik.chart" . }}
+        release: {{ .Release.Name | quote }}
+        heritage: {{ .Release.Service | quote }}
+    spec:
+      containers:
+        - name: busybox-null-service
+          image: "busybox:latest"
+          command: ["sleep"]
+          args: ["infinity"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "traefik.fullname" . }}-null-service
+spec:
+  ports:
+    - name: {{ template "traefik.fullname" . }}-null-service
+      port: 80
+      targetPort: 80
+  selector:
+    app: {{ template "traefik.fullname" . }}-null-service

@@ -26,7 +26,7 @@ spec:
     clientAuthType: {{ .Values.ssl.mtls.clientAuthType | default "RequireAndVerifyClientCert" | quote }}
 {{- end }}
 {{- end }}
-    {{- if .Values.ssl.sniStrict }}
-    sniStrict: true
-    {{- end }}
+  {{- if .Values.ssl.sniStrict }}
+  sniStrict: true
+  {{- end }}
 {{- end }}

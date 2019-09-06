@@ -391,8 +391,9 @@ acme:
     enabled: true
     domainsList:
       - main: "*.example.com" # name of the wildcard domain name for the certificate
-      - sans:
+        sans:
         - "example.com" # OPTIONAL: Alternative name(s) for the certificate, if you want the same certificate for the root of the domain name for example
+        # - "this-will-give-error.example.com" # wildcards (*.example.com) will conflict with subdomains
       - main: "*.example2.com" # name of the wildcard domain name for the certificate
 ```
 

@@ -20,6 +20,8 @@ spec:
     {{ template "traefik.acme.domains" . }}
   tls:
     certResolver: defaultResolver
+    options:
+      name: {{ template "traefik.fullname" . }}-global
 {{- end }}
 {{- end }}
 {{- end }}

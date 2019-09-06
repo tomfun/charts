@@ -39,6 +39,8 @@ spec:
   tls:
   {{ toYaml .Values.dashboard.ingress.tls | indent 4 }}
   {{- else }}
-  tls: {}
+  tls:
+    options:
+      name: {{ template "traefik.fullname" . }}-global
   {{- end -}}
 {{- end }}
