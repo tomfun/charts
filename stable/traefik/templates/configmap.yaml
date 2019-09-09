@@ -67,6 +67,28 @@ data:
       {{- end }}
       {{- end }}
 
+    #[tls.options]
+    #  [tls.options.default]
+    #    someThing = 123
+    #  {{- if .Values.ssl.tlsMinVersion }}
+    #    minVersion = {{ .Values.ssl.tlsMinVersion | quote }}
+    #  {{- end }}
+    #  {{- if .Values.ssl.cipherSuites }}
+    #    cipherSuites = {{/* template "traefik.ssl.cipherSuites" . */}}
+    #  {{- end }}
+    #  {{- if .Values.ssl.sniStrict }}
+    #    sniStrict = true
+    #  {{- end }}
+    #  {{- if .Values.ssl.mtls }}
+    #  {{- if .Values.ssl.mtls.enabled }}
+    #    [tls.options.default.clientAuth]
+    #    {{ template "traefik.ssl.mtls.clientCAs" . }}
+    #    clientAuthType = {{ .Values.ssl.mtls.clientAuthType | default "RequireAndVerifyClientCert" | quote }}
+    #  {{- end }}
+    #  {{- end }}
+    #        [[entryPoints.https.tls.certificates]]
+    #        CertFile = "/ssl/tls.crt"
+    #        KeyFile = "/ssl/tls.key"
     [api]
       dashboard = true
       {{- if .Values.debug.enabled }}
@@ -76,40 +98,6 @@ data:
     [ping]
 
     [providers]
-      [providers.kubernetesIngress]
-        {{- if .Values.kubernetes}}
-          {{- if .Values.kubernetes.endpoint }}
-        endpoint = {{ .Values.kubernetes.endpoint | quote }}
-          {{- end}}
-          {{- if .Values.kubernetes.namespaces }}
-        namespaces = [
-            {{- range $idx, $element := .Values.kubernetes.namespaces }}
-                {{- if $idx }}, {{ end }}
-                {{- $element | quote }}
-            {{- end -}}
-            ]
-          {{- end}}
-          {{- if .Values.kubernetes.labelSelector }}
-        labelselector = {{ .Values.kubernetes.labelSelector | quote }}
-          {{- end}}
-          {{- if .Values.kubernetes.ingressClass }}
-        ingressClass = {{ .Values.kubernetes.ingressClass | quote }}
-          {{- end}}
-          {{- if .Values.kubernetes.ingressEndpoint }}
-          [providers.kubernetesIngress.ingressEndpoint]
-            {{- if .Values.kubernetes.ingressEndpoint.hostname }}
-          hostname = {{ .Values.kubernetes.ingressEndpoint.hostname | quote }}
-            {{- end}}
-            {{- if .Values.kubernetes.ingressEndpoint.ip }}
-          ip = {{ .Values.kubernetes.ingressEndpoint.ip | quote }}
-            {{- end}}
-            {{- if .Values.kubernetes.ingressEndpoint.publishedService }}
-          publishedService = {{ .Values.kubernetes.ingressEndpoint.publishedService | quote }}
-            {{- else if .Values.kubernetes.ingressEndpoint.useDefaultPublishedService }}
-          publishedService = "{{ .Release.Namespace }}/{{ template "traefik.fullname" . }}"
-            {{- end}}
-          {{- end}}
-        {{- end}}
       [providers.kubernetesCRD]
         {{- if .Values.kubernetes}}
           {{- if .Values.kubernetes.endpoint }}

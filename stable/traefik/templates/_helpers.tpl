@@ -101,7 +101,7 @@ Create the block for acme.resolvers.
 Create custom cipherSuites block
 */}}
 {{- define "traefik.ssl.cipherSuites" -}}
-          cipherSuites: [
+           [
           {{- range $idx, $cipher := .Values.ssl.cipherSuites }}
             {{- if $idx }},{{ end }}
             {{ $cipher | quote }}
@@ -117,6 +117,24 @@ Create the block for RootCAs.
 	   {{- range $idx, $ca := .Values.rootCAs }}
 	     {{- if $idx }}, {{ end }}
 	     {{- $ca | quote }}
+	   {{- end -}}
+         ]
+{{- end -}}
+
+{{/*
+Create the block for mTLS ClientCAs.
+         files = [
+	   {{- range $idx, $_ := .Values.ssl.mtls.clientCaCerts }}
+	     {{- if $idx }}, {{ end }}
+	     {{- printf "/mtls/clientCaCert-%d.crt" $idx | quote }}
+	   {{- end -}}
+         ]
+*/}}
+{{- define "traefik.ssl.mtls.clientCAs" -}}
+         caFiles = [
+	   {{- range $idx, $_ := .Values.ssl.mtls.clientCaCerts }}
+	     {{- if $idx }}, {{ end }}
+	     {{- $_ | quote }}
 	   {{- end -}}
          ]
 {{- end -}}

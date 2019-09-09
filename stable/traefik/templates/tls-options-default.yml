@@ -13,7 +13,7 @@ spec:
   minVersion: {{ .Values.ssl.tlsMinVersion | quote }}
 {{- end }}
 {{- if .Values.ssl.cipherSuites }}
-  {{ template "traefik.ssl.cipherSuites" . }}
+  cipherSuites: {{ template "traefik.ssl.cipherSuites" . }}
 {{- end }}
 {{- if .Values.ssl.mtls }}
 {{- if .Values.ssl.mtls.enabled }}
