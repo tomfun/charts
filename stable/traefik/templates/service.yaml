@@ -61,3 +61,10 @@ spec:
     name: metrics
     targetPort: dash
   {{- end }}
+  {{- range $k, $v := .Values.additionalPublicEntrypoints }}
+  - name: {{ $k | quote }}
+    port: {{ $k }}
+#    targetPort: {{ $k | quote }}
+    targetPort: {{ $k }}
+    protocol: TCP
+  {{- end }}

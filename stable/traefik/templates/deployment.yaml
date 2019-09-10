@@ -162,6 +162,11 @@ spec:
           hostPort: {{ default 8080 .Values.deployment.hostPort.dashboardPort }}
           {{- end }}
           protocol: TCP
+          {{- range $k, $v := .Values.additionalPublicEntrypoints }}
+        - #name: {{ $k | quote }}
+          containerPort: {{ $k }}
+          protocol: TCP
+          {{- end }}
         args:
         - --configfile=/config/traefik.toml
         {{- range .Values.startupArguments }}

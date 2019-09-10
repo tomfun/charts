@@ -66,10 +66,21 @@ data:
         {{ template "traefik.forwardedHeadersTrustedIPs" . }}
       {{- end }}
       {{- end }}
+      {{- range $k, $v := .Values.additionalPublicEntrypoints }}
+      [entryPoints.{{ $k }}]
+        address = ":{{ $k }}"
+      {{- if $.Values.proxyProtocol.enabled }}
+        [entryPoints.{{ $k }}.proxyProtocol]
+        {{ template "traefik.trustedips" $ }}
+      {{- end }}
+      {{- if $.Values.forwardedHeaders.enabled }}
+        [entryPoints.{{ $k }}.forwardedHeaders]
+        {{ template "traefik.forwardedHeadersTrustedIPs" $ }}
+      {{- end }}
+      {{- end }}
 
     #[tls.options]
     #  [tls.options.default]
-    #    someThing = 123
     #  {{- if .Values.ssl.tlsMinVersion }}
     #    minVersion = {{ .Values.ssl.tlsMinVersion | quote }}
     #  {{- end }}

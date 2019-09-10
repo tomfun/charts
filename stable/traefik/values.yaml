@@ -149,6 +149,9 @@ ssl:
   #   # https://docs.traefik.io/configuration/entrypoints/#tls-mutual-authentication
   #   # CA certificates should be in PEM format.
 
+#additionalPublicEntrypoints:
+#  8443: {}
+
 kvprovider:
   ## If you want to run Traefik in HA mode, you will need to setup a KV Provider. Therefore you can choose one of
   ## * etcd
